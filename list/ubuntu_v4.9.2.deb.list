@@ -1,0 +1,11 @@
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.2/
+description="for Ubuntu, v4.9.2, 2017-1-09"
+
+  linux-headers-4.9.2-040902_4.9.2-040902.201701090331_all.deb
+  linux-headers-4.9.2-040902-generic_4.9.2-040902.201701090331_amd64.deb
+  linux-image-4.9.2-040902-generic_4.9.2-040902.201701090331_amd64.deb
+ 
+  linux-headers-4.9.2-040902_4.9.2-040902.201701090331_all.deb
+  linux-headers-4.9.2-040902-generic_4.9.2-040902.201701090331_i386.deb
+  linux-image-4.9.2-040902-generic_4.9.2-040902.201701090331_i386.deb
+  
