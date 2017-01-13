@@ -85,8 +85,10 @@ Homepage: https://github.com/kuiba1949/kernel-get
    ** 示例文件1: sample1.deb.list
 
 ---------------------
-http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.13.9-trusty/
-Index of /~kernel-ppa/mainline/v3.13.9-trusty
+
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.13.9-trusty/ 
+
+Index of /~kernel-ppa/mainline/v3.13.9-trusty 
 
 	Name	Last modified	Size	Description
 	Parent Directory	 	 -	 
@@ -112,16 +114,21 @@ Index of /~kernel-ppa/mainline/v3.13.9-trusty
    ** 示例文件2: sample2.deb.list
 
 ---------------------
-http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.4.41/
-description="for Ubuntu, v4.4.41, LTS, 2017-1-09"
 
-Build for amd64 succeeded (see BUILD.LOG.amd64):
-  linux-headers-4.4.41-040441_4.4.41-040441.201701090549_all.deb
-  linux-headers-4.4.41-040441-generic_4.4.41-040441.201701090549_amd64.deb
-  linux-image-4.4.41-040441-generic_4.4.41-040441.201701090549_amd64.deb
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.4.41/ 
 
-Build for i386 succeeded (see BUILD.LOG.i386):
-  linux-headers-4.4.41-040441_4.4.41-040441.201701090549_all.deb
-  linux-headers-4.4.41-040441-generic_4.4.41-040441.201701090549_i386.deb
-  linux-image-4.4.41-040441-generic_4.4.41-040441.201701090549_i386.deb
+description="for Ubuntu, v4.4.41, LTS, 2017-1-09" 
+
+Build for amd64 succeeded (see BUILD.LOG.amd64): 
+
+  linux-headers-4.4.41-040441_4.4.41-040441.201701090549_all.deb 
+  linux-headers-4.4.41-040441-generic_4.4.41-040441.201701090549_amd64.deb 
+  linux-image-4.4.41-040441-generic_4.4.41-040441.201701090549_amd64.deb 
+
+Build for i386 succeeded (see BUILD.LOG.i386): 
+
+  linux-headers-4.4.41-040441_4.4.41-040441.201701090549_all.deb 
+  linux-headers-4.4.41-040441-generic_4.4.41-040441.201701090549_i386.deb 
+  linux-image-4.4.41-040441-generic_4.4.41-040441.201701090549_i386.deb 
+  
 ---------------------
