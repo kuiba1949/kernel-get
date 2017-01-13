@@ -122,13 +122,17 @@ description="for Ubuntu, v4.4.41, LTS, 2017-1-09"
 Build for amd64 succeeded (see BUILD.LOG.amd64): 
 
   linux-headers-4.4.41-040441_4.4.41-040441.201701090549_all.deb 
+  
   linux-headers-4.4.41-040441-generic_4.4.41-040441.201701090549_amd64.deb 
+  
   linux-image-4.4.41-040441-generic_4.4.41-040441.201701090549_amd64.deb 
 
 Build for i386 succeeded (see BUILD.LOG.i386): 
 
   linux-headers-4.4.41-040441_4.4.41-040441.201701090549_all.deb 
+  
   linux-headers-4.4.41-040441-generic_4.4.41-040441.201701090549_i386.deb 
+  
   linux-image-4.4.41-040441-generic_4.4.41-040441.201701090549_i386.deb 
   
 ---------------------
