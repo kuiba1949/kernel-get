@@ -1,0 +1,76 @@
+ChangeLog for kernel-get
+
+
+2017-01-13, version 1.1-5~170113, by Careone
+	
+	* updated: README.zh_CN, TODO;
+	* replaced: replace COPYRIGHT with LICENSE
+	* updated: bin/kernel-get, which updated homepage and version;
+	* added: list/kernel-lts_2017-01-12.txt;
+
+
+2017-01-12, version 1.1-4~170112, by Careone
+	
+	* updated and added: some lastest kernel resource files, such as
+	  v4.9.2 and others (in /usr/local/share/kernel-get/list/);
+
+
+2016-03-15, version 1.1-3~ubuntu10.04+160315, by Careone
+	
+	* make DEB package (by `dpkg -b') on Ubuntu 10.04, which
+	  compress in format tar.gz, not in lzma/tar.xz;
+
+
+2016-03-11, version 1.1-1~160311, by Careone
+	
+	* updated: added lastest kernel resource file 4.4.5.deb.list, and
+          moved 4.4.4.deb.list to /usr/local/share/kernel-get/list/old/;
+
+
+2016-03-06, version 1.1, by Careone
+	
+	* pick up kernel-get as an alone package from system-grasp;
+
+	* updated: added and removed some .deb.list kernel resource files in
+	  /usr/local/share/kernel-get/list/;
+	
+	* updated: /usr/local/bin/kernel-get, and removed option --make-list;
+
+
+2014-06-13, version 0.3, by Careone
+
+	* updated: added and removed some .deb.list kernel resource files in
+	  /usr/local/share/kernel-get/list/;
+
+	* fixed: fixed a bad command call (lsb_release -sd/-sc) in Line 163;
+
+
+2014-06-03, version 0.2.5-1, by Careone
+
+	* removed and add some .deb.list kernel resource files in 
+	  /usr/local/share/kernel-get/list/
+
+
+2014-04-20, version 0.2.2-2, by Careone
+
+	* fixed: a bug for option --download, when input a kernel id but
+	  report 'a bad number';
+	* fixed: removed a file in root directory /, which not needed 
+	  and just a mistake in packing;
+        * optimize some codes
+
+
+2014-04-18, version 0.2.2-1, by Careone
+	* fixed: for option --fbterm: if run as root and disable
+	  fbterm for all users, may modify /root/.bashrc by mistake, and
+	  now it fixed and will modify global profile /etc/bash.bashrc
+
+
+2014-04-17, version 0.2.2, by Careone
+	* add new option: --check-fbterm 
+	  (check fbterm and related packages installed or not)
+	* codes optimize for some options 
+	* add some .deb.list files
+
+
+2014-04-15, version 0.2.1, by Careone
