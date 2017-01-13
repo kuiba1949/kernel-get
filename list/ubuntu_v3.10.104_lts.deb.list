@@ -1,0 +1,10 @@
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.10.104/
+description="for Ubuntu, v3.10.104, 2016-10-21"
+
+  linux-headers-3.10.104-0310104_3.10.104-0310104.201610210744_all.deb
+  linux-headers-3.10.104-0310104-generic_3.10.104-0310104.201610210744_amd64.deb
+  linux-image-3.10.104-0310104-generic_3.10.104-0310104.201610210744_amd64.deb
+
+  linux-headers-3.10.104-0310104_3.10.104-0310104.201610210744_all.deb
+  linux-headers-3.10.104-0310104-generic_3.10.104-0310104.201610210744_i386.deb
+  linux-image-3.10.104-0310104-generic_3.10.104-0310104.201610210744_i386.deb

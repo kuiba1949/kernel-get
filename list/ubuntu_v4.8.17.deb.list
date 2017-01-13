@@ -1,0 +1,12 @@
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.8.17/
+description="for Ubuntu, v4.8.17, 2017-1-09"
+
+  linux-headers-4.8.17-040817_4.8.17-040817.201701090438_all.deb
+  linux-headers-4.8.17-040817-generic_4.8.17-040817.201701090438_amd64.deb
+  linux-image-4.8.17-040817-generic_4.8.17-040817.201701090438_amd64.deb
+
+  linux-headers-4.8.17-040817_4.8.17-040817.201701090438_all.deb
+  linux-headers-4.8.17-040817-generic_4.8.17-040817.201701090438_i386.deb
+  linux-image-4.8.17-040817-generic_4.8.17-040817.201701090438_i386.deb
+
+	 

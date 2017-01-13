@@ -1,0 +1,12 @@
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.14.79/
+description="for Ubuntu, v3.14.79, LTS, 2016-9-11"
+
+Build for amd64 succeeded (see BUILD.LOG.amd64):
+  linux-headers-3.14.79-031479_3.14.79-031479.201609110530_all.deb
+  linux-headers-3.14.79-031479-generic_3.14.79-031479.201609110530_amd64.deb
+  linux-image-3.14.79-031479-generic_3.14.79-031479.201609110530_amd64.deb
+
+Build for i386 succeeded (see BUILD.LOG.i386):
+  linux-headers-3.14.79-031479_3.14.79-031479.201609110530_all.deb
+  linux-headers-3.14.79-031479-generic_3.14.79-031479.201609110530_i386.deb
+  linux-image-3.14.79-031479-generic_3.14.79-031479.201609110530_i386.deb

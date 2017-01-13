@@ -1,0 +1,8 @@
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.4.113/
+description="for Ubuntu i386, v3.4.113, LTS, 2016-10-26"
+
+Build for i386 succeeded (see BUILD.LOG.i386):
+  linux-headers-3.4.113-0304113_3.4.113-0304113.201610261546_all.deb
+  linux-headers-3.4.113-0304113-generic_3.4.113-0304113.201610261546_i386.deb
+  linux-image-3.4.113-0304113-generic_3.4.113-0304113.201610261546_i386.deb
+  linux-image-extra-3.4.113-0304113-generic_3.4.113-0304113.201610261546_i386.deb	 
