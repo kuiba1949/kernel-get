@@ -1,0 +1,34 @@
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.9.3/
+
+Build for amd64 succeeded (see BUILD.LOG.amd64):
+  linux-headers-4.9.3-040903_4.9.3-040903.201701120631_all.deb
+  linux-headers-4.9.3-040903-generic_4.9.3-040903.201701120631_amd64.deb
+  linux-image-4.9.3-040903-generic_4.9.3-040903.201701120631_amd64.deb
+
+Build for i386 succeeded (see BUILD.LOG.i386):
+  linux-headers-4.9.3-040903_4.9.3-040903.201701120631_all.deb
+  linux-headers-4.9.3-040903-generic_4.9.3-040903.201701120631_i386.deb
+  linux-image-4.9.3-040903-generic_4.9.3-040903.201701120631_i386.deb
+
+Build for armhf succeeded (see BUILD.LOG.armhf):
+  linux-headers-4.9.3-040903_4.9.3-040903.201701120631_all.deb
+  linux-headers-4.9.3-040903-generic_4.9.3-040903.201701120631_armhf.deb
+  linux-headers-4.9.3-040903-generic-lpae_4.9.3-040903.201701120631_armhf.deb
+  linux-image-4.9.3-040903-generic_4.9.3-040903.201701120631_armhf.deb
+  linux-image-4.9.3-040903-generic-lpae_4.9.3-040903.201701120631_armhf.deb
+
+Build for arm64 succeeded (see BUILD.LOG.arm64):
+  linux-headers-4.9.3-040903_4.9.3-040903.201701120631_all.deb
+  linux-headers-4.9.3-040903-generic_4.9.3-040903.201701120631_arm64.deb
+  linux-image-4.9.3-040903-generic_4.9.3-040903.201701120631_arm64.deb
+
+Build for ppc64el succeeded (see BUILD.LOG.ppc64el):
+  linux-headers-4.9.3-040903_4.9.3-040903.201701120631_all.deb
+  linux-headers-4.9.3-040903-generic_4.9.3-040903.201701120631_ppc64el.deb
+  linux-image-4.9.3-040903-generic_4.9.3-040903.201701120631_ppc64el.deb
+
+Build for s390x succeeded (see BUILD.LOG.s390x):
+  linux-headers-4.9.3-040903_4.9.3-040903.201701120631_all.deb
+  linux-headers-4.9.3-040903-generic_4.9.3-040903.201701120631_s390x.deb
+  linux-image-4.9.3-040903-generic_4.9.3-040903.201701120631_s390x.deb
+
