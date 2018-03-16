@@ -1,0 +1,637 @@
+#! /bin/bash
+## coding: utf-8
+## original filename: kernel-get
+## auto download kernel from:
+## http://kernel.ubuntu.com/~kernel-ppa/mainline/
+
+VERSION="2.0.2"
+## 2017-1-13, v1.1-5 updated by Careone <emacslocale@126.com>
+## 2018-3-16, updated by Careone <emacslocale@126.com>
+
+NAME="kernel-get"
+APPDIR="/usr/local/share/kernel-get"
+SAVETO="$HOME/kernel"
+DEB_URL="http://kernel.ubuntu.com/~kernel-ppa/mainline/"
+
+### new defines for ver 2.0, 2018-3 ###
+APPNAME="$NAME"
+APPVER="$VERSION"
+prefix="http://kernel.ubuntu.com/~kernel-ppa/mainline"
+
+SUBDIR_LIST="list"
+SUBDIR_DEB="deb"
+
+if [ ! -d "$SAVETO/$SUBDIR_LIST/" ]; then
+  mkdir -p "$SAVETO/$SUBDIR_LIST"
+fi
+
+if [ ! -d "$SAVETO/$SUBDIR_DEB/" ]; then
+  mkdir -p "$SAVETO/$SUBDIR_DEB"
+fi
+
+## sample linux kernel SUBDIR in "$prefix"
+ANY_VER="v4.9.4"
+## -------
+
+
+###
+DEBUG=0
+TODO=1	# 1: todo; 0: done and can be enabled
+
+## 1: show debug info (for develop and debug only); 0: not show
+
+## probe current LANG is zh_CN or others, to auto select information
+## language
+CLANG=`echo $LANG | cut -d'.' -f1`
+
+# message defines
+# now support English, Chinese Simplified, Chinese Traditional
+# x in array (for message language): 0=en, 1=zh_CN, 2=zh_TW
+
+##-----------
+
+
+# Usage: usage
+# Print the usage.
+usage_en () {
+cat <<EOF
+Usage: $APPNAME "KERNEL_VERSION_SUBDIR"
+       $APPNAME [OPTION]
+a command line tool to download Linux kernel packages from special web URL
+  
+Example: $APPNAME $ANY_VER  
+  -v, --version    print the version information and exit
+  -h, --help       print this message and exit
+EOF
+}
+
+usage_cn () {
+cat <<EOF
+Usage: $APPNAME "KERNEL_VERSION_SUBDIR"
+       $APPNAME [OPTION]
+读取资源文件，从特定网址下载 Linux 内核软件包
+
+Example: $APPNAME $ANY_VER
+  -v, --version    显示版本信息并退出
+  -h, --help       显示帮助信息并退出
+EOF
+}
+
+
+about () {
+  cat <<EOF
+Homepage: https://github.com/kuiba1949/kernel-get/
+
+Please report bugs to Careone <emacslocale@126.com>.
+EOF
+}
+
+#
+_makeSample () {
+cat <<EOF
+http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.10.99-precise/
+description="Sample for kernel 3.10.99 LTS"
+# 2016-3-04
+
+linux-headers-3.10.99-031099-generic_3.10.99-031099.201603031931_amd64.deb
+linux-headers-3.10.99-031099-generic_3.10.99-031099.201603031931_i386.deb
+linux-headers-3.10.99-031099_3.10.99-031099.201603031931_all.deb
+linux-image-3.10.99-031099-generic_3.10.99-031099.201603031931_amd64.deb
+linux-image-3.10.99-031099-generic_3.10.99-031099.201603031931_i386.deb
+EOF
+}
+
+
+
+
+
+## ===============
+
+
+## PART 2: main
+# Check the arguments.
+
+if [ "$#" -eq 0 ]; then
+
+## tag 010: probe package format
+## --------------------
+case `uname -n` in
+  ubuntu | debian | linuxmint | lmde | linuxdeepin | ubuntukylin)
+  PKGFMT="deb"	#may in *.deb and *.udeb format?
+  ALL="all"
+	;;
+  *)
+if which apt-get &>/dev/null && which dpkg &>/dev/null; then
+  PKGFMT="deb"
+  ALL="all"
+elif which rpm &>/dev/null || which yum &>/dev/null; then
+  PKGFMT="rpm"	#may in *.rpm or *.drpm format?
+  ALL="noarch"
+
+ 	TODO=1
+  if [ "$TODO" = 1 ]; then
+  echo -n "  unsupport Linux release `uname -n`." 1>&2
+  echo -n " (support Debian/Ubuntu and similar DEB serious Linux only.)" 1>&2
+  echo "  abort." 1>&2
+  exit 0
+  fi
+else 
+  PKGFMT="other"
+  echo -n "  unsupport Linux release `uname -n`." 1>&2
+  echo -n " (support Debian/Ubuntu and similar DEB serious Linux only.)" 1>&2
+  echo "  abort." 1>&2
+  exit 0
+fi
+	;;
+esac
+
+# tag d020: probe current headware arch
+  case `uname -m` in
+    i?86)ARCH="i386" ;;
+    amd64)ARCH="amd64" ;;
+
+    powerpc)ARCH="powerpc" ;;
+    armel)ARCH="armel" ;;
+    armhf)ARCH="armhf" ;;
+    mips)ARCH="mips" ;;
+    mipsel)ARCH="mipsel" ;;
+    ia64)ARCH="ia64" ;;
+
+    sparc)ARCH="sparc" ;;
+    s390)ARCH="s390" ;;
+    s390x)ARCH="s390x" ;;
+
+    *)ARCH="unknown-arch"; echo "  Error: unsupported hardware ARCH '$ARCH'" ;;
+  esac
+## --------------------
+
+	#declare -a FLIST 	#files of kernel source list
+	declare -a SRC		#url to download kernel packages
+
+  ## tag d025: probe current Linux release and package format
+  ## PKGFMT: package format
+  echo "* download and install kernel packages in list resource files..."
+
+  ## old method: show OS id in lowercase, such as "ubuntu"
+  # echo "  current kernel version: `uname -n` `uname -m`, `uname -r`"
+  #
+  ## new method: show OS id with frist uppercase, such as "Ubuntu"
+  echo "  current OS and kernel version:"
+  #echo "  `lsb_release -sd` (`lsb_release -sc`), `uname -m`, `uname -r`"
+  #
+  echo "  `lsb_release -sd`, `uname -m`, `uname -r`"
+  # sample output: Debian GNU/Linux 7.5 (wheezy), i686, 3.14.5-031405-generic
+
+  echo
+  echo "Tips: download .DEB packages from:"
+  echo "  $DEB_URL"
+  echo
+	# tag d030: get kernel list to download
+	declare -a LISTFILES	# kernel resource files
+	declare -a KVERS	# kernel versions
+	declare -a KDESC	# kernel descriptions
+
+	LISTFILES=( `ls -1 "$SAVETO/list/"*.$PKGFMT.list 2>/dev/null` `ls -1 "$APPDIR/list/"*.$PKGFMT.list 2>/dev/null` )
+
+	## get arrays: list-files, kernel-versions, kernel-descriptions
+
+	# probe and remove null/unreadable/void files from array
+	
+	echo "** check available kernel list files..."
+	echo "   User:   $SAVETO/list/*.$PKGFMT.list"
+		#ls -1 "$SAVETO/list/"*.$PKGFMT.list 2>/dev/null
+		if [ ! -d "$SAVETO/list/" ]; then
+		  echo "     creating a SAMPLE kernel .$PKGFMT.list file for current user..."
+		  mkdir -p "$SAVETO/list/"
+		  _makeSample > "$SAVETO/list/sample.$PKGFMT.list"
+		  echo
+		fi
+		#echo
+
+	echo "   Global: $APPDIR/list/*.$PKGFMT.list"
+		#ls -1 "$APPDIR/list/"*.$PKGFMT.list 2>/dev/null
+		echo
+
+	id=1	#init
+
+	for a in `seq 1 "${#LISTFILES[@]}"`; do
+	  let "b = a -1"
+	    if grep -i "linux-image" "${LISTFILES[b]}" 2>/dev/null | grep -i "$ARCH"&>/dev/null; then
+	 #  if [ -r "${LISTFILES[b]}" ] && [ -s "${LISTFILES[b]}" ] && grep -i "linux-image" "${LISTFILES[b]}" 2>/dev/null &>/dev/null; then
+	      echo "  found: $id* '${LISTFILES[b]}'"
+	     else
+		echo -e "  ignore: '$LISTFILES{[b]}'\t(unreadable or void)" 1>&2
+		unset LISTFILES[b] ; continue ;
+	     fi
+		 ## add a new line after every 4 lines
+		N="$(($id % 4))"
+
+		if [ "$N" = 0 ]; then
+		  echo
+		fi
+		
+		let "id += 1"
+	   	
+	done
+
+	#
+	for a in `seq 1 "${#LISTFILES[@]}"`; do
+	  let "b = a -1"
+
+	## get kernel resources and versions from filename string
+	# samples:
+	# source 1:
+	# for ubuntu daily
+	# http://kernel.ubuntu.com/~kernel-ppa/mainline/v3.13.8-trusty/
+	# linux-image-3.13.8-031308-generic_3.13.8-031308.201403311335_i386.deb
+
+	# source 2:
+	# http://mirrors.163.com/ubuntu/pool/main/l/linux/
+	# for ubuntu 14.04 lts
+	# linux-image-generic-lts-trusty_3.13.0.23.27_i386.deb	#normal filename style
+	# linux-image_3.11.0.19.20_i386.deb	#special filename style
+
+	# source 3:
+	# http://mirrors.163.com/debian/pool/main/l/linux/
+	# for debian sid, 2014-03
+	# linux-image-3.13-0.bpo.1-486_3.13.7-1~bpo70+1_i386.deb
+	#
+	SRC[b]=`grep -i "http://" "${LISTFILES[b]}" 2>/dev/null | head -1 | sed '/#/s///g' | tail -1 | sed '/\/$/s///'`
+
+	## sample:
+	#KVERS[b]=`grep -i "linux-image" "${LISTFILES[b]}" 2>/dev/null | grep -i "\_$ARCH\.$PKGFMT" | sed "/linux-image/s//\nlinux-image/g;/_$ARCH\.$PKGFMT/s//_$ARCH\.$PKGFMT\n/g" | grep "linux-image" | sort | uniq | head -1 | cut -d'e' -f2- | sed '/./s///' | cut -d_ -f1`
+
+	KFILE="linux-image"
+	FARCH="$ARCH"	#File architecture
+	KVERS[b]=`grep -i "$KFILE" "${LISTFILES[b]}" 2>/dev/null | grep -i "\_$FARCH\.$PKGFMT" | sed "/$KFILE/s//\n$KFILE/g;/_$FARCH\.$PKGFMT/s//_$FARCH\.$PKGFMT\n/g" | grep "$KFILE" | sort | uniq | head -1 | cut -d'e' -f2- | sed '/./s///' | cut -d_ -f1`
+
+	## todo
+	## need edit to auto pick the latest kernel, now is force to pick
+	#  version 3.13, on code 'grep 3.13'
+#KVERS[b]=`grep -i "$KFILE" "${LISTFILES[b]}" 2>/dev/null | grep -i "\_$FARCH\.$PKGFMT" | sed "/$KFILE/s//\n$KFILE/g;/_$FARCH\.$PKGFMT/s//_$FARCH\.$PKGFMT\n/g" | grep "$KFILE" | sort | uniq | grep -i "3\.13" | head -1 | cut -d'e' -f2- | sed '/./s///' | cut -d_ -f1`
+
+	#$ grep linux-image ubuntu.ls-lR.2014-04-12.*.list | cut -d_ -f2 | sort | cut -d. -f1-2 | uniq | sort | uniq
+	declare -a IMGVERS
+	IMGVERS=( `grep "$KFILE" "${LISTFILES[b]}" 2>/dev/null | cut -d_ -f2 | sort | cut -d. -f1-2 | uniq | sort | uniq` )
+	# grep "[-\.~]"
+	# sed '/[-~]/s//./g'
+
+
+        # sample:
+	# linux-image-generic-lts-trusty_3.13.0.23.27_i386.deb
+        #             |---- KVERS -----| |-- KDESC -|
+	#
+        # linux-image_3.11.0.19.20_i386.deb
+        #           > KVERS & KDESC <
+
+	if [ -z "${KVERS[b]}" ]; then
+	  KVERS[b]="unknown-version"
+	  #echo "  Error: void kernel list file '${LISTFILES[b]}'. skip." 1>&2
+	  #exit 1;
+	fi
+
+	# get kernel description from list file, method 1
+	  KDESC[b]=`grep -i "description=" "${LISTFILES[b]}" 2>/dev/null | head -1 | cut -d= -f2 | sed '/\"/s///g;/'\''/s///g'`
+	# get descrition from linux-image filename, method 2
+	#`grep -i "\.deb" "${LISTFILES[b]}" 2>/dev/null | head -1 | cut -d= -f2 | sed '/\"/s///g;/'\''/s///g'`
+        # sample: linux-image-3.13.8-031308-generic_3.13.8-031308.201403311335_i386.deb
+        #    	                                    --------------------------
+	# output: 3.13.8-031308.201403311335
+
+	# $ grep i386.deb *ubuntu*.list | grep linux-image | grep "\-generic_" | grep 3.13
+
+	if [ -z "${KDESC[b]}" ]; then
+	  KDESC[b]=`grep -i "linux-image" "${LISTFILES[b]}" 2>/dev/null | head -1 | cut -d_ -f2`
+	fi
+
+	# if not find filename linux-image.* string in kernel list file,
+	if [ -z "${KDESC[b]}" ]; then
+	  KDESC[b]="?"
+	  #echo "  Error: void kernel list file '${LISTFILES[b]}'. abort." 1>&2
+	  #exit 1;
+	fi
+
+	done
+
+	# -----
+	echo
+
+	# tag d040: show available kernel lists with versions and descriptions
+	case "$2" in
+	 * | "")echo "please select a kernel version to download (or press number 0 to quit):"
+
+		for id in `seq 1 "${#LISTFILES[@]}"`; do
+		 let "n = id - 1"
+		 echo -e "\t$id* ${KVERS[n]}\t(${KDESC[n]})"
+
+		 ## add a new line after every 4 lines
+		N="$(($id % 4))"
+
+		if [ "$N" = 0 ]; then
+		  echo
+		fi
+		done
+
+		echo -en "\t[0-${#LISTFILES[@]}] "
+
+		until [ "$KID" != "" ]; do
+		  read KID DESC
+		  #KID = kernel id, and DESC used to throw bad strings inputed.
+		  case "$KID" in
+		    0* | [nN]* | [qQ]* | [xX]*)echo "  quit."
+		      exit 0 ;
+			;;
+		    *[^0-9]*)KID="" ;
+		      echo -en "  bad id number. please retry: " # continue ;
+			;;
+		    [[:digit:]]): ;;
+		    *)echo "  error: void id number. quit." 1>&2
+		      exit 1 ;
+			;;
+		  esac
+		done
+
+		# tag d045: check inputed id isn't out of range
+		if [ "$KID" -le "${#LISTFILES[@]}" ] && [ "$KID" -ge 1 ];then
+		  let "m = KID - 1"
+	        else echo "  error: void id number. quit." 1>&2
+		  exit 1
+		fi
+
+		;;
+	*)
+	# todo: need more code to do something if kernel-list files given
+	echo "  error: unknown error in 'tag-d050'. quit." 1>&2
+	exit 1
+
+	 shift
+	 LISTFILES=( "$@" )
+
+	;;
+	esac
+
+	id=1	#init
+
+  echo -e "download kernel packages from:\n\t${SRC[m]}/"
+  echo "* check available packages to download..."
+
+  declare -a LINUX_IMAGE	# linux-images files for current arch
+  declare -a LINUX_HEADERS	# linux-headers files for current arch
+
+  declare -a LINUX_HEADERALL	# linux-headers files for all/noarch arch
+#  old define LINUX_HEADER(S)ALL may cause dangers, so disabled since version 0.4
+
+### tag d050: show files found in list file which need to download
+  ## kernel related files
+  # file 1/3: linux-image* for i386/amd64/...
+  KFILE="linux-image"
+  FARCH="$ARCH"	#kernel file arch
+  echo "** package (for $FARCH): $KFILE"
+  LINUX_IMAGE=( `grep -i "$KFILE" "${LISTFILES[m]}" 2>/dev/null | grep -i "_$FARCH\.$PKGFMT" | sed "/$KFILE/s//\n$KFILE/;/_$FARCH\.$PKGFMT/s//_$FARCH.$PKGFMT\n/" | grep -i "$KFILE"` )
+
+
+## files numbers not limited
+  for a in "${LINUX_IMAGE[@]}"; do
+    echo -e "  $id $a"
+
+## files numbers limited to 4 max to keep your hard disk safe
+#  for a in `seq 0 3`; do
+#    echo -e "  $id ${LINUX_IMAGE[a]}"
+
+    let "id += 1"
+  done
+  echo
+
+###
+  # file 2/3: linux-headers* for i386/amd64/...
+  KFILE="linux-headers"
+  FARCH="$ARCH"	#kernel file arch
+  echo "** package (for $FARCH): $KFILE"
+  LINUX_HEADERS=( `grep -i "$KFILE" "${LISTFILES[m]}" 2>/dev/null | grep -i "_$FARCH\.$PKGFMT" | sed "/$KFILE/s//\n$KFILE/;/_$FARCH\.$PKGFMT/s//_$FARCH.$PKGFMT\n/" | grep -i "$KFILE"` )
+
+## files numbers not limited
+  for a in "${LINUX_HEADERS[@]}"; do
+    echo -e "  $id $a"
+
+## files numbers limited to 4 max to keep your hard disk safe
+#  for a in `seq 0 3`; do
+#    echo -e "  $id ${LINUX_HEADERS[a]}"
+
+    let "id += 1"
+  done
+  echo
+
+###
+  # file 3/3: linux-headers* for all/noarch...
+  KFILE="linux-headers"
+  FARCH="$ALL"	#kernel file arch
+  echo "** package (for $FARCH): $KFILE"
+  LINUX_HEADERALL=( `grep -i "$KFILE" "${LISTFILES[m]}" 2>/dev/null | grep -i "_$FARCH\.$PKGFMT" | sed "/$KFILE/s//\n$KFILE/;/_$FARCH\.$PKGFMT/s//_$FARCH.$PKGFMT\n/" | grep -i "$KFILE"` )
+
+## files numbers not limited
+  for a in "${LINUX_HEADERALL[@]}"; do
+    echo -e "  $id $a"
+
+## files numbers limited to 4 max to keep your hard disk safe
+#  for a in `seq 0 3`; do
+ #   echo -e "  $id ${LINUX_HEADERALL[a]}"
+
+    let "id += 1"
+  done
+  echo
+
+ #echo "L298 ---------------------"
+ #exit 0
+## tag d055: start download
+  echo "* start downloading (save to '$SAVETO/$PKGFMT/${KVERS[m]}/')..."
+  id=1 	#init
+  	if [ ! -d "$SAVETO/$PKGFMT/${KVERS[m]}/" ]; then
+	  mkdir -p "$SAVETO/$PKGFMT/${KVERS[m]}/"
+	fi
+
+  # ---- show packages need download, usually need 3 files (example for i386):
+  # linux-image*_i386.deb
+  # linux-headers*_i386.deb
+  # linux-headers*_all.deb
+
+  for a in "${LINUX_IMAGE[@]}"; do
+    echo "**  package $id: ($a)"
+    echo
+
+	if [ "$DEBUG" = 1 ];then
+	  echo "L333: linux-image='$SAVETO/$PKGFMT/${KVERS[m]}/$a'"
+	else
+    	  wget -c "${SRC[m]}/$a" -O "$SAVETO/$PKGFMT/${KVERS[m]}/$a"
+	fi
+    let "id += 1"
+  done
+
+  for a in "${LINUX_HEADERS[@]}"; do
+    echo "**  package $id: ($a)"
+    echo
+	if [ "$DEBUG" = 1 ];then
+	  echo "L360: linux-headers='$SAVETO/$PKGFMT/${KVERS[m]}/$a'"
+	else
+    	  wget -c "${SRC[m]}/$a" -O "$SAVETO/$PKGFMT/${KVERS[m]}/$a"
+	fi
+    let "id += 1"
+  done
+
+  for a in "${LINUX_HEADERALL[@]}"; do
+    echo "**  package $id: ($a)"
+    echo
+	if [ "$DEBUG" = 1 ];then
+	  echo "L346: linux-headers_all='$SAVETO/$PKGFMT/${KVERS[m]}/$a'"
+	else
+    	  wget -c "${SRC[m]}/$a" -O "$SAVETO/$PKGFMT/${KVERS[m]}/$a"
+	fi
+    let "id += 1"
+  done
+  # ----
+
+  if ls "$SAVETO/$PKGFMT/${KVERS[m]}/${LINUX_IMAGE[0]}" 2>/dev/null &>/dev/null; then
+    echo
+    echo "* available kernel packages in '$SAVETO/$PKGFMT/${KVERS[m]}/':"
+
+    #ls "$SAVETO/$PKGFMT/${KVERS[m]}/linux-image"*"_$ARCH.$PKGFMT" "$SAVETO/$PKGFMT/${KVERS[m]}/linux-headers"*"_$ARCH.$PKGFMT" 2>/dev/null
+
+    ls "$SAVETO/$PKGFMT/${KVERS[m]}/linux-image"*"_$ARCH.$PKGFMT" "$SAVETO/$PKGFMT/${KVERS[m]}/linux-headers"*"_$ARCH.$PKGFMT" "$SAVETO/$PKGFMT/${KVERS[m]}/linux-headers"*"_$ALL.$PKGFMT" 2>/dev/null | cat -n
+  else
+    echo "  Error: no downloaded kernel package found in '$SAVETO/$PKGFMT/${KVERS[m]}/'. quit." 1>&2
+    exit 1
+  fi
+    echo
+    #echo -n "  download DONE. "
+    echo "please install packages later."
+
+  #exit 0
+
+## install downloaded packages
+	echo
+	echo "* ready to install downloaded kernel packages..."
+	echo -en "  press Y to install new kernel, or N to exit: [Y/n]\t"
+
+#	exit 0;
+
+ [ `whoami` = "root" ] || { echo -e "\n\troot please!"; exit 0; }
+	read YESORNO DESC
+	case "$YESORNO" in
+	  [Yy]* | ''): ;;
+	  [Nn]* | *)exit 0 ;;
+	esac
+
+  #,fuzzy: LINUX_IMAGE[@] or LINUX_IMAGE[0] ?
+  if ls "$SAVETO/$PKGFMT/${KVERS[m]}/${LINUX_IMAGE[0]}" 2>/dev/null &>/dev/null; then
+  	echo ""
+    cd "$SAVETO/$PKGFMT/${KVERS[m]}/"
+    dpkg -i "${LINUX_IMAGE[@]}" "${LINUX_HEADERS[@]}" "${LINUX_HEADERALL[@]}"
+    cd -
+  else echo "  Error: no downloaded kernel package found in '$SAVETO/$PKGFMT/${KVERS[m]}/'. quit." 1>&2
+    exit 1
+  fi
+
+	if [ "$?" = 0 ]; then
+	  echo "  Done."
+	fi
+	exit 0 ;
+
+	#;;
+	## option --download-kernel end
+
+else
+
+## other options
+for option in "$@"; do
+    case "$option" in
+      -h | --help)
+	case "$CLANG" in
+	  zh_CN)USAGE="usage_cn" ;;
+	  zh_TW)USAGE="usage_en" ;;
+	  en* | *)USAGE="usage_en" ;;
+	esac
+
+	"$USAGE"
+	echo
+	about ;
+	exit 0 ;;
+    -v | --version)
+	basename -- "$0 $VERSION"
+	exit 0 ;;
+
+    -*)
+	echo "Unrecognized option \`$option'" 1>&2
+	exit 1;;
+
+    esac
+
+done
+
+## ver 2.0 added, 2018-3
+SAVETO="$HOME/kernel/list"
+SUFFIX="deb.list"
+
+
+if [ ! -d "$SAVETO" ]; then
+  mkdir -p "$SAVETO"
+fi
+
+
+if [ "$#" -ge 1 ] && [ "$1" != '' ]; then
+
+    case "$1" in
+	v[0-9]*)
+	    tmp_html=`mktemp`
+	    URL_DIR="$prefix/$1"
+	    
+	    file="$SAVETO/$1.$SUFFIX"
+	    file2="$SAVETO/$1.txt"
+	    
+	    echo -e " * download data from:\n   $URL_DIR/\n"
+	    
+	    ### wget
+	    ## -t 3: try 3 times; -T 30: timeout 30 seconds
+	    ## -q: quiet
+	    #wget -c -t 3 -T 30 "$URL_DIR" -O "$tmp_html"
+	    wget -q -c -t 3 -T 30 "$URL_DIR" -O "$tmp_html"
+	    
+
+    if [ -s "$tmp_html" ]; then
+	
+	# if -s file: file have size (not 0)
+	echo -e " * creat .$SUFFIX package list file, and save as:\n  $file\n"
+	
+#	if [ -s "$file" ]; then
+#    cp -vf --backup "$file" "${file}_$(date +'%Y-%m%d-%H%M%S')"	    
+#	fi
+		
+echo -e "$URL_DIR/\ndescription=auto added, $(date +'%Y-%m-%d %H:%M:%S')\n" > "$file"
+
+		
+sed "/linux-/s//\n&/g;/.deb/s//&\n/g;/.udeb/s//&\n/g" "$tmp_html" | grep "^linux-" | uniq | sort | uniq | sed '/low/d' >> "$file"
+
+## part 2 (optional): save html to text. filename: v{X.Y.Z}.txt
+  if which html2text &>/dev/null; then  
+    html2text "$tmp_html" -width 999 > "$file2" 2>/dev/null
+  fi
+
+  if [ -s "$file" ]; then
+    echo -e " * show file: $file"
+    echo "   ------------------"
+    grep -n '' --color=auto "$file"
+    echo "   ------------------"    
+  fi
+
+  echo -e "\n Done.\n  please run '$APPNAME' again, and select a Linux kernel to download."
+  fi 
+	    ;;
+ 	
+   *) 
+    echo -e "  Error: '$1' maybe not a right Linux kernel Version/Subdir name!\n  Quit." 1>&2
+	   exit 0
+	   ;;
+	     esac
+
+fi 
+fi
+exit 0 ;
+
